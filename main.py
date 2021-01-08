@@ -2,6 +2,25 @@ import pygame
 import sys
 import os
 
+all_sprites = pygame.sprite.Group()
+vertical_borders = pygame.sprite.Group()
+horizontal_borders = pygame.sprite.Group()
+
+
+class Border(pygame.sprite.Sprite):
+    # строго вертикальный или строго горизонтальный отрезок
+    def __init__(self, x1, y1, x2, y2):
+        super().__init__(all_sprites)
+        if x1 == x2:  # вертикальная стенка
+            self.add(vertical_borders)
+            self.image = pygame.Surface([1, y2 - y1])
+            self.rect = pygame.Rect(x1, y1, 1, y2 - y1)
+        else:  # горизонтальная стенка
+            self.add(horizontal_borders)
+            self.image = pygame.Surface([x2 - x1, 1])
+            self.rect = pygame.Rect(x1, y1, x2 - x1, 1)
+        self.image.fill((255, 255, 255))
+
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
@@ -57,6 +76,10 @@ if __name__ == '__main__':
     pygame.display.set_caption('Ping_pong')
     size = width, height = 800, 500
     screen = pygame.display.set_mode(size)
+    Border(0, 0, width - 1, 0)
+    Border(0, height - 1, width, height)
+    Border(0, 0, 0, height)
+    Border(width - 1, 0, width - 1, height - 1)
     clock = pygame.time.Clock()
     running = True
     flag = 0
@@ -67,6 +90,9 @@ if __name__ == '__main__':
         if flag == 0:
             flag = start_screen()
         screen.fill((0, 0, 0))
+        all_sprites.draw(screen)
+        horizontal_borders.draw(screen)
+        vertical_borders.draw(screen)
         pygame.display.flip()
         clock.tick(30)
     pygame.quit()
