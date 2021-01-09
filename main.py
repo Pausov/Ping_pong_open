@@ -2,10 +2,13 @@ import pygame
 import sys
 import os
 import random
+import pygame.locals
 
 all_sprites = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
+platform_left = pygame.sprite.Group()
+platform_right = pygame.sprite.Group()
 
 
 class Ball(pygame.sprite.Sprite):
@@ -29,9 +32,31 @@ class Ball(pygame.sprite.Sprite):
 
 
 class Platfomes(pygame.sprite.Sprite):
-    def __init__(self):
+    def __init__(self, w, h, x, y):
+        self.y = y
+        self.x = x
         super().__init__(all_sprites)
+        if x < width // 2:
+            self.add(platform_left)
+        else:
+            self.add(platform_right)
+        self.image = pygame.Surface([w, h])
+        self.rect = pygame.Rect(self.x, self.y, w, h)
+        self.image.fill((255, 255, 255))
 
+    def update(self):
+        if event.type == pygame.KEYDOWN and self.x > width // 2:
+            if event.key == pygame.K_UP:
+                self.rect = self.rect.move(0, -4)
+
+            if event.key == pygame.K_DOWN:
+                self.rect = self.rect.move(0, 4)
+        if event.type == pygame.KEYDOWN and self.x < width // 2:
+            if event.key == pygame.K_w:  # НЕ РАБОТАЕТ
+                self.rect = self.rect.move(0, -4)
+
+            if event.key == pygame.K_s:  # НЕ РАБОТАЕТ
+                self.rect = self.rect.move(0, 4)
 
 
 class Border(pygame.sprite.Sprite):
@@ -107,6 +132,8 @@ if __name__ == '__main__':
     Border(0, height - 1, width, height)
     Border(0, 0, 0, height)
     Border(width - 1, 0, width - 1, height - 1)
+    Platfomes(10, 50, 750, 250)
+    Platfomes(10, 50, 50, 250)
     clock = pygame.time.Clock()
     running = True
     flag = 0
@@ -124,6 +151,8 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         horizontal_borders.draw(screen)
         vertical_borders.draw(screen)
+        platform_right.draw(screen)
+        platform_left.draw(screen)
         all_sprites.update()
         pygame.display.flip()
         clock.tick(60)
