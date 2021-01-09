@@ -1,10 +1,31 @@
 import pygame
 import sys
 import os
+import random
 
 all_sprites = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
+
+
+class Ball(pygame.sprite.Sprite):
+    def __init__(self, radius, x, y):
+        super().__init__(all_sprites)
+        self.radius = radius
+        self.image = pygame.Surface((2 * radius, 2 * radius),
+                                    pygame.SRCALPHA, 32)
+        pygame.draw.circle(self.image, pygame.Color("red"),
+                           (radius, radius), radius)
+        self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
+        self.vx = random.randint(-5, 5)
+        self.vy = random.randrange(-5, 5)
+
+    def update(self):
+        self.rect = self.rect.move(self.vx, self.vy)
+        if pygame.sprite.spritecollideany(self, horizontal_borders):
+            self.vy = -self.vy
+        if pygame.sprite.spritecollideany(self, vertical_borders):
+            self.vx = -self.vx
 
 
 class Border(pygame.sprite.Sprite):
@@ -64,7 +85,7 @@ def start_screen():
                     event.type == pygame.MOUSEBUTTONDOWN:
                 return 1
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
 
 
 def main():
@@ -83,7 +104,11 @@ if __name__ == '__main__':
     clock = pygame.time.Clock()
     running = True
     flag = 0
+    count = 0
     while running:
+        if flag == 1 and count == 0:
+            Ball(9, 250, 230)
+            count = 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -93,7 +118,8 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         horizontal_borders.draw(screen)
         vertical_borders.draw(screen)
+        all_sprites.update()
         pygame.display.flip()
-        clock.tick(30)
+        clock.tick(60)
     pygame.quit()
     main()
