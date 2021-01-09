@@ -28,6 +28,12 @@ class Ball(pygame.sprite.Sprite):
             self.vx = -self.vx
 
 
+class Platfomes(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__(all_sprites)
+
+
+
 class Border(pygame.sprite.Sprite):
     # строго вертикальный или строго горизонтальный отрезок
     def __init__(self, x1, y1, x2, y2):
