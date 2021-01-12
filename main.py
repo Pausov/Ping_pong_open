@@ -37,26 +37,30 @@ class Platfomes(pygame.sprite.Sprite):
         self.x = x
         super().__init__(all_sprites)
         if x < width // 2:
-            self.add(platform_left)
+            self.add(vertical_borders)
         else:
-            self.add(platform_right)
+            self.add(vertical_borders)
         self.image = pygame.Surface([w, h])
         self.rect = pygame.Rect(self.x, self.y, w, h)
         self.image.fill((255, 255, 255))
 
     def update(self):
-        if event.type == pygame.KEYDOWN and self.x > width // 2:
-            if event.key == pygame.K_UP:
-                self.rect = self.rect.move(0, -4)
+        keys = pygame.key.get_pressed()
 
-            if event.key == pygame.K_DOWN:
-                self.rect = self.rect.move(0, 4)
-        if event.type == pygame.KEYDOWN and self.x < width // 2:
-            if event.key == pygame.K_w:  # НЕ РАБОТАЕТ
-                self.rect = self.rect.move(0, -4)
+        if keys[pygame.K_UP] and self.x > width // 2:
+            self.rect = self.rect.move(0, -4)
+        if keys[pygame.K_DOWN] and self.x > width // 2:
+            self.rect = self.rect.move(0, 4)
 
-            if event.key == pygame.K_s:  # НЕ РАБОТАЕТ
-                self.rect = self.rect.move(0, 4)
+        if keys[pygame.K_w] and self.x < width // 2:
+            self.rect = self.rect.move(0, -4)
+        if keys[pygame.K_s] and self.x < width // 2:
+            self.rect = self.rect.move(0, 4)
+
+        if self.rect.top <= 0:
+            self.rect.top = 0
+        if self.rect.bottom >= height:
+            self.rect.bottom = height
 
 
 class Border(pygame.sprite.Sprite):
