@@ -20,15 +20,15 @@ class Ball(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (radius, radius), radius)
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
-        self.vx = random.randint(-5, 5)
-        self.vy = random.randrange(-5, 5)
+        self.vx = random.choice([-2, -1, 1, 2])
+        self.vy = random.choice([-2, -1, 1, 2])
 
     def update(self):
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             self.vy = -self.vy
         if pygame.sprite.spritecollideany(self, vertical_borders):
-            self.vx = -self.vx
+            self.vx = -self.vx + random.choice([-2, -1, 1, 2])
 
 
 class Platfomes(pygame.sprite.Sprite):
@@ -94,21 +94,22 @@ def load_image(name, colorkey=None):
 
 
 def start_screen():
-    intro_text = ["Игра ПИНГ ПОНГ", "",
-                  "Для начала нажмите любую кнопку",
-                  "Для руководства нажмите R",
+    intro_text = ["Для начала нажмите",
+                  'Нажмите любую кнопку',
+                  "Для руководства",
+                  "нажмите R",
                   "Пробная версия 0.00000000001"]
 
     fon = pygame.transform.scale(load_image('fon.png'), (width, height))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
-    text_coord = 220
+    text_coord = 202
     for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('blue'))
+        string_rendered = font.render(line, 1, pygame.Color('black'))
         intro_rect = string_rendered.get_rect()
-        text_coord += 10
+        text_coord += 4
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.x = 274
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
     while True:
