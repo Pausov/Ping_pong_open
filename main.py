@@ -28,6 +28,7 @@ class Ball(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             self.vy = -self.vy
         if pygame.sprite.spritecollideany(self, vertical_borders):
+            hit_sound.play()
             self.vx = -self.vx + random.choice([-2, -1, 1, 2])
 
 
@@ -139,6 +140,7 @@ if __name__ == '__main__':
     Border(width - 1, 0, width - 1, height - 1)
     Platfomes(10, 50, 750, 250)
     Platfomes(10, 50, 50, 250)
+    hit_sound = pygame.mixer.Sound('Pong.wav')
     clock = pygame.time.Clock()
     running = True
     flag = 0
