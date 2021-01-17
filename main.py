@@ -29,6 +29,7 @@ class Ball(pygame.sprite.Sprite):
     def update(self):
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, horizontal_borders):
+            hit_sound.play()
             self.vy = -self.vy
 
         if pygame.sprite.spritecollideany(self, vertical_borders):
@@ -69,22 +70,11 @@ class Platfomes(pygame.sprite.Sprite):
             self.rect.bottom = height
 
 
-class IconPlatfomes(pygame.sprite.Sprite):
-    def __init__(self, w, h, x, y):
-        self.y = y
-        self.x = x
-        global current_color
-        super().__init__(all_sprites)
-
-        self.image = pygame.Surface([w, h])
-        self.rect = pygame.Rect(self.x, self.y, w, h)
-        self.image.fill(colors[current_color])
-
-
 class Border(pygame.sprite.Sprite):
     # строго вертикальный или строго горизонтальный отрезок
     def __init__(self, x1, y1, x2, y2):
         super().__init__(all_sprites)
+        global current_color
         if x1 == x2:  # вертикальная стенка
             self.add(vertical_borders)
             self.image = pygame.Surface([1, y2 - y1])
@@ -93,7 +83,7 @@ class Border(pygame.sprite.Sprite):
             self.add(horizontal_borders)
             self.image = pygame.Surface([x2 - x1, 1])
             self.rect = pygame.Rect(x1, y1, x2 - x1, 1)
-        self.image.fill((255, 255, 255))
+        self.image.fill(colors[current_color])
 
 
 def load_image(name, colorkey=None):
@@ -138,11 +128,14 @@ def start_screen():
                 sys.exit()
             elif event.type == pygame.KEYDOWN and event.type != pygame.K_r:
                 return 1
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if current_color != len(colors):
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if current_color != len(colors) - 1:
                     current_color += 1
                 else:
                     current_color = 1
+            pygame.draw.rect(screen, colors[current_color], ((43, 249), (20, 100)))
+            pygame.draw.rect(screen, colors[current_color], ((737, 240), (20, 100)))
+
             platform_test.draw(screen)
             pygame.display.flip()
         pygame.display.flip()
@@ -163,6 +156,7 @@ if __name__ == '__main__':
     Border(0, 0, 0, height)
     Border(width - 1, 0, width - 1, height - 1)
     hit_sound = pygame.mixer.Sound('Pong.wav')
+    pygame.mixer.init(44100, -16, 2, 64)
     clock = pygame.time.Clock()
     running = True
     flag = 0
