@@ -125,6 +125,7 @@ def load_image(name, colorkey=None):
     return image
 
 
+
 def start_screen():
     intro_text = ["Для начала нажмите",
                   'Нажмите любую кнопку',
