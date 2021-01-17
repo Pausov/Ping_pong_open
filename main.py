@@ -3,12 +3,11 @@ import sys
 import os
 import random
 import pygame.locals
+import time
 
 all_sprites = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
-platform_left = pygame.sprite.Group()
-platform_right = pygame.sprite.Group()
 
 
 class Ball(pygame.sprite.Sprite):
@@ -22,14 +21,46 @@ class Ball(pygame.sprite.Sprite):
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
         self.vx = random.choice([-2, -1, 1, 2])
         self.vy = random.choice([-2, -1, 1, 2])
+        self.f1 = pygame.font.Font('counter.ttf', 50)
+        self.count_l = 0
+        self.count_r = 0
+        self.c_l = self.f1.render('{}'.format(self.count_l), True,
+                                  (255, 255, 255))
+        self.c_r = self.f1.render('{}'.format(self.count_r), True,
+                                  (255, 255, 255))
+
+    def counter(self, x):
+        if x == 'l':
+            self.count_r += 1
+        elif x == 'r':
+            self.count_l += 1
+        count_sound.play()
+        time.sleep(0.5)
+        self.rect.x = width // 2
+        self.rect.y = height // 2
+        self.vx = random.choice([-2, -1, 1, 2])
+        self.vy = random.choice([-2, -1, 1, 2])
 
     def update(self):
+        self.c_l = self.f1.render('{}'.format(self.count_l), True,
+                                  (255, 255, 255))
+        self.c_r = self.f1.render('{}'.format(self.count_r), True,
+                                  (255, 255, 255))
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             self.vy = -self.vy
-        if pygame.sprite.spritecollideany(self, vertical_borders):
             hit_sound.play()
+
+        if pygame.sprite.spritecollideany(self, vertical_borders):
+            if 1 < self.rect.x < width - 19:
+                hit_sound.play()
             self.vx = -self.vx + random.choice([-2, -1, 1, 2])
+        if self.rect.x <= 1:
+            Ball.counter(self, 'l')
+        if self.rect.x >= width - 19:
+            Ball.counter(self, 'r')
+        screen.blit(self.c_l, (width * 0.4, 40))
+        screen.blit(self.c_r, (width * 0.56, 40))
 
 
 class Platfomes(pygame.sprite.Sprite):
@@ -122,7 +153,7 @@ def start_screen():
                     event.type == pygame.MOUSEBUTTONDOWN:
                 return 1
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(40)
 
 
 def main():
@@ -141,13 +172,15 @@ if __name__ == '__main__':
     Platfomes(10, 50, 750, 250)
     Platfomes(10, 50, 50, 250)
     hit_sound = pygame.mixer.Sound('Pong.wav')
+    count_sound = pygame.mixer.Sound('count.wav')
     clock = pygame.time.Clock()
     running = True
     flag = 0
     count = 0
+    pygame.draw.line(screen, 'white', (width // 2, 0), (width // 2, height))
     while running:
         if flag == 1 and count == 0:
-            Ball(9, 250, 230)
+            Ball(9, width // 2, height // 2)
             count = 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -155,11 +188,10 @@ if __name__ == '__main__':
         if flag == 0:
             flag = start_screen()
         screen.fill((0, 0, 0))
+        pygame.draw.line(screen, 'white', (width // 2, 0), (width // 2, height), 3)
         all_sprites.draw(screen)
         horizontal_borders.draw(screen)
         vertical_borders.draw(screen)
-        platform_right.draw(screen)
-        platform_left.draw(screen)
         all_sprites.update()
         pygame.display.flip()
         clock.tick(60)
