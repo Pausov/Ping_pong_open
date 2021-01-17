@@ -7,8 +7,11 @@ import pygame.locals
 all_sprites = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 horizontal_borders = pygame.sprite.Group()
-platform_left = pygame.sprite.Group()
+platform_test = pygame.sprite.Group()
 platform_right = pygame.sprite.Group()
+colors = [(255, 255, 255), (255, 0, 0), (0, 255, 0), (0, 0, 255)]
+colors_fon = []
+current_color = 0
 
 
 class Ball(pygame.sprite.Sprite):
@@ -20,22 +23,24 @@ class Ball(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, pygame.Color("red"),
                            (radius, radius), radius)
         self.rect = pygame.Rect(x, y, 2 * radius, 2 * radius)
-        self.vx = random.choice([-2, -1, 1, 2])
-        self.vy = random.choice([-2, -1, 1, 2])
+        self.vx = 6
+        self.vy = 4
 
     def update(self):
         self.rect = self.rect.move(self.vx, self.vy)
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             self.vy = -self.vy
+
         if pygame.sprite.spritecollideany(self, vertical_borders):
             hit_sound.play()
-            self.vx = -self.vx + random.choice([-2, -1, 1, 2])
+            self.vx = -self.vx
 
 
 class Platfomes(pygame.sprite.Sprite):
     def __init__(self, w, h, x, y):
         self.y = y
         self.x = x
+        global current_color
         super().__init__(all_sprites)
         if x < width // 2:
             self.add(vertical_borders)
@@ -43,7 +48,7 @@ class Platfomes(pygame.sprite.Sprite):
             self.add(vertical_borders)
         self.image = pygame.Surface([w, h])
         self.rect = pygame.Rect(self.x, self.y, w, h)
-        self.image.fill((255, 255, 255))
+        self.image.fill(colors[current_color])
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -62,6 +67,18 @@ class Platfomes(pygame.sprite.Sprite):
             self.rect.top = 0
         if self.rect.bottom >= height:
             self.rect.bottom = height
+
+
+class IconPlatfomes(pygame.sprite.Sprite):
+    def __init__(self, w, h, x, y):
+        self.y = y
+        self.x = x
+        global current_color
+        super().__init__(all_sprites)
+
+        self.image = pygame.Surface([w, h])
+        self.rect = pygame.Rect(self.x, self.y, w, h)
+        self.image.fill(colors[current_color])
 
 
 class Border(pygame.sprite.Sprite):
@@ -112,15 +129,22 @@ def start_screen():
         intro_rect.top = text_coord
         intro_rect.x = 274
         text_coord += intro_rect.height
+        global current_color
         screen.blit(string_rendered, intro_rect)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.KEYDOWN and event.type != pygame.K_r:
                 return 1
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if current_color != len(colors):
+                    current_color += 1
+                else:
+                    current_color = 1
+            platform_test.draw(screen)
+            pygame.display.flip()
         pygame.display.flip()
         clock.tick(60)
 
@@ -138,8 +162,6 @@ if __name__ == '__main__':
     Border(0, height - 1, width, height)
     Border(0, 0, 0, height)
     Border(width - 1, 0, width - 1, height - 1)
-    Platfomes(10, 50, 750, 250)
-    Platfomes(10, 50, 50, 250)
     hit_sound = pygame.mixer.Sound('Pong.wav')
     clock = pygame.time.Clock()
     running = True
@@ -148,6 +170,8 @@ if __name__ == '__main__':
     while running:
         if flag == 1 and count == 0:
             Ball(9, 250, 230)
+            Platfomes(10, 50, 750, 250)
+            Platfomes(10, 50, 50, 250)
             count = 1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -159,7 +183,6 @@ if __name__ == '__main__':
         horizontal_borders.draw(screen)
         vertical_borders.draw(screen)
         platform_right.draw(screen)
-        platform_left.draw(screen)
         all_sprites.update()
         pygame.display.flip()
         clock.tick(60)
